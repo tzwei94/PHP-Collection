@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Datatables-MSSQL</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="https://cdn.iconscout.com/icon/free/png-256/sql-4-190807.png">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+	<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.20/af-2.3.4/b-1.6.0/b-colvis-1.6.0/b-flash-1.6.0/b-html5-1.6.0/b-print-1.6.0/cr-1.5.2/fc-3.3.0/fh-3.1.6/kt-2.5.1/r-2.2.3/rg-1.1.1/rr-1.2.6/sc-2.0.1/sl-1.3.1/datatables.min.css" />
+	<style>
+		div.dt-buttons {
+			float: right;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+
+		<h2>Datatables-MSSQL</h2>
+		<div class="row">
+			<div class="col-12">
+				<form>
+					<div class="form-group mb-1 row">
+						<label for="reportrange" class="col-sm-2 col-form-label">Start Date Range</label>
+						<div id="reportrange" class="col-sm-10">
+							<div class="row">
+								<div class="col-sm-3">
+									<input type="text" class="form-control search_item" id="start_date" name="start_date" />
+								</div>
+								<span class="my-auto">-</span>
+								<div class="col-sm-3">
+									<input type="text" class="form-control search_item" id="end_date" name="end_date" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-1 row">
+						<label for="first_name" class="col-sm-2 col-form-label">First Name</label>
+						<div class="col-sm-3">
+							<input type="text" class="form-control search_item" id="first_name" name="first_name" />
+						</div>
+					</div>
+					<div class="form-group mb-1 row">
+						<label for="last_name" class="col-sm-2 col-form-label">Last Name</label>
+						<div class="col-sm-3">
+							<input type="text" class="form-control search_item" id="last_name" name="last_name" />
+						</div>
+					</div>
+					<div class="form-group mb-1 row">
+						<label for="position" class="col-sm-2 col-form-label">Position</label>
+						<div class="col-sm-3">
+							<input type="text" class="form-control search_item" id="position" name="position" />
+						</div>
+					</div>
+					<div class="form-group mb-1 row">
+						<label for="office" class="col-sm-2 col-form-label">Office</label>
+						<div class="col-sm-3">
+							<input type="text" class="form-control search_item" id="office" name="office" />
+						</div>
+					</div>
+					<div class="form-group mb-1 row">
+						<label for="amount" class="col-sm-2 col-form-label">Salary Range</label>
+						<div class="col-sm-10">
+							<div class="row">
+								<div class="input-group col-sm-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">$</span>
+									</div>
+									<input type="text" class="form-control search_item" id="start_amount" name="start_amount" />
+								</div>
+								<span class="my-auto">-</span>
+								<div class="input-group col-sm-3">
+									<div class="input-group-prepend">
+										<span class="input-group-text">$</span>
+									</div>
+									<input type="text" class="form-control search_item" id="end_amount" name="end_amount" />
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						&nbsp
+					</div>
+
+					<div class="form-group row">
+						<button type="button" class="btn btn-link mx-1" id="ytd">Yesterday</button>
+						<button type="button" class="btn btn-link mx-1" id="tdy">Today</button>
+						<button type="button" class="btn btn-link mx-1" id="7days">Last 7 Days</button>
+						<button type="button" class="btn btn-link mx-1" id="30days">Last 30 Days</button>
+						<button type="button" class="btn btn-link mx-1" id="Alldays">Alldays</button>
+					</div>
+
+					<div class="form-group row mb-1">
+						<div class="col-12">
+							<table id="example" class="display" style="width:100%">
+								<thead>
+									<tr>
+										<th></th>
+										<th>First name</th>
+										<th>Last name</th>
+										<th>Position</th>
+										<th>Office</th>
+										<th>Start date</th>
+										<th>Salary</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript"
+	src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.20/af-2.3.4/b-1.6.0/b-colvis-1.6.0/b-flash-1.6.0/b-html5-1.6.0/b-print-1.6.0/cr-1.5.2/fc-3.3.0/fh-3.1.6/kt-2.5.1/r-2.2.3/rg-1.1.1/rr-1.2.6/sc-2.0.1/sl-1.3.1/datatables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.20/api/processing().js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+	//
+	// Pipelining function for DataTables. To be used to the `ajax` option of DataTables
+	//
+	$.fn.dataTable.pipeline = function (opts) {
+		// Configuration options
+		var conf = $.extend({
+			pages: 5,     // number of pages to cache
+			url: '',      // script url
+			data: null,   // function or object with parameters to send to the server
+			// matching how `ajax.data` works in DataTables
+			method: 'GET' // Ajax HTTP method
+		}, opts);
+
+		// Private variables for storing the cache
+		var cacheLower = -1;
+		var cacheUpper = null;
+		var cacheLastRequest = null;
+		var cacheLastJson = null;
+
+		return function (request, drawCallback, settings) {
+			var ajax = false;
+			var requestStart = request.start;
+			var drawStart = request.start;
+			var requestLength = request.length;
+			var requestEnd = requestStart + requestLength;
+
+			if (settings.clearCache) {
+				// API requested that the cache be cleared
+				ajax = true;
+				settings.clearCache = false;
+			}
+			else if (cacheLower < 0 || requestStart < cacheLower || requestEnd > cacheUpper) {
+				// outside cached data - need to make a request
+				ajax = true;
+			}
+			else if (JSON.stringify(request.order) !== JSON.stringify(cacheLastRequest.order) ||
+				JSON.stringify(request.columns) !== JSON.stringify(cacheLastRequest.columns) ||
+				JSON.stringify(request.search) !== JSON.stringify(cacheLastRequest.search)
+			) {
+				// properties changed (ordering, columns, searching)
+				ajax = true;
+			}
+
+			// Store the request for checking next time around
+			cacheLastRequest = $.extend(true, {}, request);
+
+			if (ajax) {
+				// Need data from the server
+				if (requestStart < cacheLower) {
+					requestStart = requestStart - (requestLength * (conf.pages - 1));
+
+					if (requestStart < 0) {
+						requestStart = 0;
+					}
+				}
+
+				cacheLower = requestStart;
+				cacheUpper = requestStart + (requestLength * conf.pages);
+
+				request.start = requestStart;
+				request.length = requestLength * conf.pages;
+
+				// Provide the same `data` options as DataTables.
+				if (typeof conf.data === 'function') {
+					// As a function it is executed with the data object as an arg
+					// for manipulation. If an object is returned, it is used as the
+					// data object to submit
+					var d = conf.data(request);
+					if (d) {
+						$.extend(request, d);
+					}
+				}
+				else if ($.isPlainObject(conf.data)) {
+					// As an object, the data given extends the default
+					$.extend(request, conf.data);
+				}
+
+				settings.jqXHR = $.ajax({
+					"type": conf.method,
+					"url": conf.url,
+					"data": request,
+					"dataType": "json",
+					"cache": false,
+					"success": function (json) {
+						cacheLastJson = $.extend(true, {}, json);
+
+						if (cacheLower != drawStart) {
+							json.data.splice(0, drawStart - cacheLower);
+						}
+						if (requestLength >= -1) {
+							json.data.splice(requestLength, json.data.length);
+						}
+
+						drawCallback(json);
+					}
+				});
+			}
+			else {
+				json = $.extend(true, {}, cacheLastJson);
+				json.draw = request.draw; // Update the echo for each response
+				json.data.splice(0, requestStart - cacheLower);
+				json.data.splice(requestLength, json.data.length);
+
+				drawCallback(json);
+			}
+		}
+	};
+
+	// Register an API method that will empty the pipelined data, forcing an Ajax
+	// fetch on the next draw (i.e. `table.clearPipeline().draw()`)
+	$.fn.dataTable.Api.register('clearPipeline()', function () {
+		return this.iterator('table', function (settings) {
+			settings.clearCache = true;
+		});
+	});
+
+	//
+	// DataTables initialisation
+	//
+	$(function () {
+
+		// Data Table
+		var table = $('#example').DataTable({
+			dom: 'Brtip',
+			columnDefs: [{
+				orderable: false,
+				className: 'select-checkbox',
+				targets: 0,
+				render: function (data, type, row, meta) {
+					return '';
+				}
+			},
+			{
+				targets: 3,
+				render: function (data, type, row, meta) {
+					return '<a href="' + data + '">' + data + '</a>';
+				}
+			}
+			],
+			select: {
+				style: 'os',
+				selector: 'td:first-child'
+			},
+			buttons: [
+				{
+					extend: 'colvis',
+					text: 'Column Filter'
+				},
+				{
+					extend: 'collection',
+					text: 'Export',
+					buttons: [
+						'copy',
+						'excel',
+						'csv',
+						'pdf',
+						'print'
+					]
+				}
+			],
+			processing: true,
+			serverSide: true,
+			scrollY: 300,
+			deferRender: true,
+			scroller: true,
+			ajax: $.fn.dataTable.pipeline({
+				url: 'server_processing.php',
+				pages: 5 // number of pages to cache
+			})
+		});
+
+		$('#example tbody').on('click', 'tr', function () {
+			// console.log(table.row(this).data());
+		});
+
+		$('input.search_item').each(function (index, el) {
+
+			$(el).on('keyup change clear', function () {
+				var column = table;
+				var col_name = this.name;
+				var search_keyword = this.value;
+
+				switch (col_name) {
+					case 'start_date':
+					case 'end_date':
+						var start_date_time = $('#reportrange').data('daterangepicker').startDate.format('YYYY-MM-DD') + " 00:00:00";
+						var end_date_time = $('#reportrange').data('daterangepicker').endDate.format('YYYY-MM-DD') + " 23:59:59";
+						column = table.column(5);
+						search_keyword = "Range:" + start_date_time + "<>" + end_date_time;
+						break;
+
+					case 'first_name':
+						column = table.column(1);
+						break;
+
+					case 'last_name':
+						column = table.column(2);
+						break;
+
+					case 'position':
+						column = table.column(3);
+						break;
+
+					case 'office':
+						column = table.column(4);
+						break;
+
+					case 'status':
+						column = table.column(5);
+						break;
+
+					case 'start_amount':
+					case 'end_amount':
+						var min = $("#start_amount").val();
+						var max = $("#end_amount").val();
+						column = table.column(6);
+						search_keyword = "Range:" + min + "<>" + max;
+						break;
+
+					default:
+						break;
+				}
+
+				if (column.search() !== search_keyword) {
+					column.search(search_keyword).draw();
+				}
+			});
+		});
+
+
+		// Date Range Picker
+		var start = moment(0);
+		var end = moment();
+
+		$('#reportrange').daterangepicker({
+			showCustomRangeLabel: false,
+			startDate: start,
+			endDate: end,
+			alwaysShowCalendars: true,
+			showDropdowns: true,
+			ranges: {
+				'Today': [moment(), moment()],
+				'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+				'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+				'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+				'This Month': [moment().startOf('month'), moment().endOf('month')],
+				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+				'Last Year - NOW': [moment().subtract(1, 'years').startOf('years'), moment()]
+			}
+		}, dateSetText);
+
+		dateSetText(start, end);
+
+		$('#ytd').on('click', function () {
+			dateSet(moment().subtract(1, 'days'), moment().subtract(1, 'days'));
+		});
+		$('#tdy').on('click', function () {
+			dateSet(moment(), moment());
+		});
+		$('#7days').on('click', function () {
+			dateSet(moment().subtract(6, 'days'), moment());
+		});
+		$('#30days').on('click', function () {
+			dateSet(moment().subtract(29, 'days'), moment());
+		});
+
+		$('#Alldays').on('click', function () {
+			dateSet(moment(0), moment());
+		});
+	});
+
+	function dateSet(start, end) {
+		$('#reportrange').data('daterangepicker').setStartDate(start);
+		$('#reportrange').data('daterangepicker').setEndDate(end);
+		dateSetText(start, end);
+	}
+
+	function dateSetText(start, end) {
+		$('#start_date').val(start.format('MMMM D, YYYY'));
+		$('#end_date').val(end.format('MMMM D, YYYY'));
+		$("#start_date").trigger("change");
+		$("#end_date").trigger("change");
+	}
+</script>
+
+</html>
